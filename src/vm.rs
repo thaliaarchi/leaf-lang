@@ -1,3 +1,5 @@
+use thiserror::Error;
+
 use crate::{Inst, Program, Tree, TreeRef};
 
 #[derive(Clone, Debug)]
@@ -5,15 +7,18 @@ pub struct VM<'a> {
     prog: &'a Program,
     pc: usize,
     tree: Tree,
+    root: TreeRef,
     cursor: TreeRef,
     root_stack: Vec<TreeRef>,
     loop_stack: Vec<(usize, usize)>,
     success: bool,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Error, Clone, Debug, PartialEq, Eq)]
 pub enum VMError {
+    #[error("cannot pop root (`}}` without `{{`)")]
     PopRootEmpty,
+    #[error("VM has terminated")]
     Terminated,
 }
 
@@ -25,6 +30,7 @@ impl<'a> VM<'a> {
             prog,
             pc: 0,
             tree,
+            root,
             cursor: root,
             root_stack: vec![root],
             loop_stack: vec![],
@@ -71,7 +77,7 @@ impl<'a> VM<'a> {
                 }
                 Inst::MoveUp => {
                     if let Some(parent) = self.tree.get(self.cursor).parent() {
-                        if parent != self.root() {
+                        if parent != self.current_root() {
                             self.cursor = parent;
                             self.success = true;
                         }
@@ -110,7 +116,7 @@ impl<'a> VM<'a> {
                     self.tree.remove(self.cursor);
                 }
                 Inst::BreakRoot => {
-                    self.success = self.cursor == self.root();
+                    self.success = self.cursor == self.current_root();
                     if self.success {
                         self.pc = if let Some((_, tail)) = self.loop_stack.pop() {
                             tail
@@ -131,6 +137,10 @@ impl<'a> VM<'a> {
     }
 
     pub fn root(&self) -> TreeRef {
+        self.root
+    }
+
+    pub fn current_root(&self) -> TreeRef {
         self.root_stack[self.root_stack.len() - 1]
     }
 }

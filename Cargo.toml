@@ -10,3 +10,4 @@ keywords = ["programming-language", "tree"]
 categories = ["compilers"]
 
 [dependencies]
+thiserror = "1.0"

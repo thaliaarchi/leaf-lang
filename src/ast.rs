@@ -1,3 +1,5 @@
+use thiserror::Error;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Inst {
     /// `<`
@@ -27,9 +29,11 @@ pub enum Inst {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Program(Vec<Inst>);
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Error, Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum ParseError {
+    #[error("unopened loop (`)` without `(`)")]
     UnopenedLoop,
+    #[error("unclosed loop (`(` without `)`)")]
     UnclosedLoop,
 }
 
