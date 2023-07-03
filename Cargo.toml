@@ -1,0 +1,12 @@
+[package]
+name = "leaf-lang"
+version = "0.1.0"
+authors = ["Thalia Archibald <thalia@archibald.dev>"]
+edition = "2021"
+description = "A fast implementation of the Leaf esoteric programming language"
+repository = "https://github.com/thaliaarchi/leaf-lang"
+license = "MPL-2.0"
+keywords = ["programming-language", "tree"]
+categories = ["compilers"]
+
+[dependencies]
