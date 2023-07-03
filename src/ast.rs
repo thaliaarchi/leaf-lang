@@ -11,9 +11,9 @@ pub enum Inst {
     /// `}`
     PopRoot,
     /// `(`
-    LoopHead,
+    LoopHead(usize),
     /// `)`
-    LoopTail(usize),
+    LoopTail,
     /// `+`
     AddLeft,
     /// `*`
@@ -46,11 +46,12 @@ impl Program {
                 b'}' => Inst::PopRoot,
                 b'(' => {
                     loops.push(prog.len());
-                    Inst::LoopHead
+                    Inst::LoopHead(usize::MAX)
                 }
                 b')' => {
                     let head = loops.pop().ok_or(ParseError::UnopenedLoop)?;
-                    Inst::LoopTail(head)
+                    prog[head] = Inst::LoopHead(prog.len());
+                    Inst::LoopTail
                 }
                 b'+' => Inst::AddLeft,
                 b'*' => Inst::AddRight,

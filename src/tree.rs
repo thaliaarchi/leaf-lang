@@ -3,7 +3,6 @@ use std::num::NonZeroUsize;
 #[derive(Clone, Debug)]
 pub struct Tree {
     nodes: Vec<TreeNode>,
-    root: Option<TreeRef>,
     free: Option<TreeRef>,
 }
 
@@ -22,13 +21,8 @@ impl Tree {
     pub fn new() -> Self {
         Tree {
             nodes: Vec::new(),
-            root: None,
             free: None,
         }
-    }
-
-    pub fn root(&self) -> Option<TreeRef> {
-        self.root
     }
 
     pub fn new_empty(&mut self) -> TreeRef {
@@ -115,12 +109,26 @@ impl Tree {
         self.free = Some(id);
     }
 
-    fn get(&self, id: TreeRef) -> &TreeNode {
+    pub fn get(&self, id: TreeRef) -> &TreeNode {
         &self.nodes[id.as_usize()]
     }
 
-    fn get_mut(&mut self, id: TreeRef) -> &mut TreeNode {
+    pub fn get_mut(&mut self, id: TreeRef) -> &mut TreeNode {
         &mut self.nodes[id.as_usize()]
+    }
+}
+
+impl TreeNode {
+    pub fn left(&self) -> Option<TreeRef> {
+        self.left
+    }
+
+    pub fn right(&self) -> Option<TreeRef> {
+        self.right
+    }
+
+    pub fn parent(&self) -> Option<TreeRef> {
+        self.parent
     }
 }
 
