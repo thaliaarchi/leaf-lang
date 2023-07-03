@@ -59,9 +59,9 @@ impl<'a> VM<'a> {
 
     #[inline(always)]
     fn step_inline(&mut self) -> Result<(), VMError> {
+        let prev_success = self.success;
         self.success = false;
         if let Some(inst) = self.prog.get(self.pc) {
-            self.pc += 1;
             match *inst {
                 Inst::MoveLeft => {
                     if let Some(left) = self.tree.get(self.cursor).left() {
@@ -92,10 +92,10 @@ impl<'a> VM<'a> {
                     self.success = true;
                 }
                 Inst::LoopHead(tail) => {
-                    self.loop_stack.push((self.pc, tail + 1));
+                    self.loop_stack.push((self.pc, tail));
                 }
                 Inst::LoopTail => {
-                    if self.success {
+                    if prev_success {
                         let (head, _) = self.loop_stack[self.loop_stack.len() - 1];
                         self.pc = head;
                     } else {
@@ -112,8 +112,12 @@ impl<'a> VM<'a> {
                     self.success = true;
                 }
                 Inst::Delete => {
-                    self.success = self.tree.get(self.cursor).parent().is_some();
-                    self.tree.remove(self.cursor);
+                    let deleted = self.cursor;
+                    if let Some(parent) = self.tree.get(self.cursor).parent() {
+                        self.success = true;
+                        self.cursor = parent;
+                    }
+                    self.tree.remove(deleted);
                 }
                 Inst::BreakRoot => {
                     self.success = self.cursor == self.current_root();
@@ -126,6 +130,7 @@ impl<'a> VM<'a> {
                     }
                 }
             }
+            self.pc += 1;
             Ok(())
         } else {
             Err(VMError::Terminated)
