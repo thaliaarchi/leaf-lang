@@ -1,5 +1,5 @@
 use std::collections::vec_deque::VecDeque;
-use std::fmt;
+use std::fmt::{self, Display, Formatter};
 use std::num::NonZeroUsize;
 
 #[derive(Clone, Debug)]
@@ -120,17 +120,20 @@ impl Tree {
     }
 
     pub fn dump_dot<W: fmt::Write>(&self, w: &mut W, id: TreeRef) -> fmt::Result {
-        writeln!(w, "digraph tree{} {{", id.as_usize())?;
+        writeln!(w, "digraph tree{id} {{")?;
+        writeln!(w, "    {id} [shape=point];")?;
         let mut stack = VecDeque::new();
         stack.push_back(id);
         while let Some(id) = stack.pop_front() {
             let node = self.get(id);
             if let Some(left) = node.left {
-                writeln!(w, "    {} -> {};", id.as_usize(), left.as_usize())?;
+                writeln!(w, "    {left} [shape=point];")?;
+                writeln!(w, "    {id} -> {left};")?;
                 stack.push_back(left);
             }
             if let Some(right) = node.right {
-                writeln!(w, "    {} -> {};", id.as_usize(), right.as_usize())?;
+                writeln!(w, "    {right} [shape=point];")?;
+                writeln!(w, "    {id} -> {right};")?;
                 stack.push_back(right);
             }
         }
@@ -159,5 +162,11 @@ impl TreeRef {
 
     fn as_usize(self) -> usize {
         self.0.get() - 1
+    }
+}
+
+impl Display for TreeRef {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        self.as_usize().fmt(f)
     }
 }
