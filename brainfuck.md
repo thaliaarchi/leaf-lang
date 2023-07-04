@@ -1,25 +1,53 @@
 # Brainfuck in Leaf
 
-Initialize 30,000 cells:
+## Initialize 30,000 cells
 
 ```leaf
 +*>+*>+*>+*> 29,999 times +*>+*>+*>+*>
 (^)
 ```
 
-`>` Move right:
+## `>` Move right
 
 ```leaf
 >
 ```
 
-`<` Move left:
+## `<` Move left
 
 ```leaf
 ^
 ```
 
-`+` Increment cell:
+## `+` Increment cell (non-wrapping)
+
+```leaf
+{<      Set the root and enter the cell
+(>)*    Move to the tail of the cell and add a leaf
+(^)}    Return to the tape and pop the root
+```
+
+```leaf
+{<(>)*(^)}
+```
+
+## `-` Decrement cell (non-wrapping)
+
+```leaf
+<{      Enter the cell and set the root
+(
+  (>)   Move to the tail of the cell
+  ?     Break, if the value is 0
+  -(^)  Otherwise, remove the tail leaf and return to the root
+^)      Break
+}^      Pop the root and return to the tape
+```
+
+```leaf
+<{((>)?-(^)^)}^
+```
+
+## `+` Increment cell (wrapping)
 
 ```leaf
 <{      Enter the cell and set the root
@@ -43,7 +71,7 @@ Initialize 30,000 cells:
 <{(>)*(^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^?-^)}^
 ```
 
-`-` Decrement cell:
+## `-` Decrement cell (wrapping)
 
 ```leaf
 <{      Enter the cell and set the root
@@ -71,7 +99,7 @@ Initialize 30,000 cells:
 <{(>)+(?-(^))<(?-*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>(^))}^
 ```
 
-`[ … ]` Loop:
+## `[ … ]` Loop
 
 ```leaf
 (       Loop
@@ -80,13 +108,14 @@ Initialize 30,000 cells:
 }^^     Otherwise, pop the root and return to the tape
 …       Execute the loop body
 )       Repeat
+}^      Pop the root and return to the tape
 ```
 
 ```leaf
-(<{>?}^^ … )
+(<{>?}^^ … )}^
 ```
 
-Header comment:
+## Header comment
 
 ```leaf
 (? … )
