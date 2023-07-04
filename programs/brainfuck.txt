@@ -1,0 +1,21 @@
+< Move one cell to the left
+  ^
+
+> Move one cell to the right
+  >
+
++ Wrapping increment for cells 0..=5
+  <{(>)*(^^^^?-^)}^
+
+  <          Move into the number at the current position on the tape
+  {          Set the root
+    (>)*     Move to end and increment
+    (
+      ^^^^?  Move to the root and break out of the loop, if the cell is 0..=4
+      -      If the cell is 5, the cursor is at 1, so deleting sets it to 0
+      ^      The - placed the cursor at 0, which is at the root, so ^ cannot go anywhere and the loop doesn't repeat
+    )
+  }          Pop the root
+  ^          Move back to the tape
+
+- Wrapping decrement for cells 0..=5
