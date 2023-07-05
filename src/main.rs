@@ -44,7 +44,5 @@ fn main() {
         eprintln!("{err}");
         process::exit(1);
     }
-    let mut s = String::new();
-    vm.tree().dump_dot(&mut s, vm.root()).unwrap();
-    print!("{s}");
+    print!("{}", vm.tree().dump_dot_to_string());
 }

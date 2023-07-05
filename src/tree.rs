@@ -1,35 +1,36 @@
 use std::collections::vec_deque::VecDeque;
-use std::fmt::{self, Display, Formatter};
+use std::fmt;
 use std::num::NonZeroUsize;
+use std::ops::{Index, IndexMut};
 
 #[derive(Clone, Debug)]
-pub struct Tree {
-    nodes: Vec<TreeNode>,
-    free: Option<TreeRef>,
+pub struct MultiTree {
+    nodes: Vec<Node>,
+    free: Option<NodeId>,
 }
 
 #[derive(Clone, Debug)]
-pub struct TreeNode {
-    left: Option<TreeRef>,
-    right: Option<TreeRef>,
-    parent: Option<TreeRef>,
+pub struct Node {
+    left: Option<NodeId>,
+    right: Option<NodeId>,
+    parent: Option<NodeId>,
 }
 
 #[repr(transparent)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct TreeRef(NonZeroUsize);
+pub struct NodeId(NonZeroUsize);
 
-impl Tree {
+impl MultiTree {
     pub fn new() -> Self {
-        Tree {
+        MultiTree {
             nodes: Vec::new(),
             free: None,
         }
     }
 
-    pub fn new_empty(&mut self) -> TreeRef {
+    pub fn new_node(&mut self) -> NodeId {
         if let Some(id) = self.free {
-            let node = self.get_mut(id);
+            let node = self.get_unchecked_mut(id);
             let left = node.left;
             let right = node.right;
             let next_free = node.parent;
@@ -45,8 +46,8 @@ impl Tree {
             }
             id
         } else {
-            let id = TreeRef::new(self.nodes.len());
-            self.nodes.push(TreeNode {
+            let id = NodeId::new(self.nodes.len());
+            self.nodes.push(Node {
                 left: None,
                 right: None,
                 parent: None,
@@ -55,8 +56,27 @@ impl Tree {
         }
     }
 
-    pub fn set_left(&mut self, id: TreeRef, left: Option<TreeRef>) {
-        let node = self.get_mut(id);
+    pub fn new_left(&mut self, id: NodeId) {
+        let left = self.new_node_reused(self[id].left, Some(id));
+        self.get_unchecked_mut(id).left = Some(left);
+    }
+
+    pub fn new_right(&mut self, id: NodeId) {
+        let right = self.new_node_reused(self[id].right, Some(id));
+        self.get_unchecked_mut(id).right = Some(right);
+    }
+
+    fn new_node_reused(&mut self, id: Option<NodeId>, parent: Option<NodeId>) -> NodeId {
+        if let Some(id) = id {
+            self.free(id);
+        }
+        let id = self.new_node();
+        self[id].parent = parent;
+        id
+    }
+
+    pub fn set_left(&mut self, id: NodeId, left: Option<NodeId>) {
+        let node = &mut self[id];
         let old = node.left;
         node.left = left;
         if let Some(left) = old {
@@ -64,8 +84,8 @@ impl Tree {
         }
     }
 
-    pub fn set_right(&mut self, id: TreeRef, right: Option<TreeRef>) {
-        let node = self.get_mut(id);
+    pub fn set_right(&mut self, id: NodeId, right: Option<NodeId>) {
+        let node = &mut self[id];
         let old = node.right;
         node.right = right;
         if let Some(right) = old {
@@ -73,30 +93,11 @@ impl Tree {
         }
     }
 
-    pub fn set_left_empty(&mut self, id: TreeRef) {
-        let left = self.free_or_new(self.get(id).left, Some(id));
-        self.get_mut(id).left = Some(left);
-    }
-
-    pub fn set_right_empty(&mut self, id: TreeRef) {
-        let right = self.free_or_new(self.get(id).right, Some(id));
-        self.get_mut(id).right = Some(right);
-    }
-
-    fn free_or_new(&mut self, id: Option<TreeRef>, parent: Option<TreeRef>) -> TreeRef {
-        if let Some(id) = id {
-            self.free(id);
-        }
-        let id = self.new_empty();
-        self.get_mut(id).parent = parent;
-        id
-    }
-
-    pub fn remove(&mut self, id: TreeRef) {
-        let parent = self.get(id).parent;
+    pub fn delete(&mut self, id: NodeId) {
+        let parent = self[id].parent;
         self.free(id);
         if let Some(parent) = parent {
-            let parent = self.get_mut(parent);
+            let parent = self.get_unchecked_mut(parent);
             if parent.left == Some(id) {
                 parent.left = None;
             } else if parent.right == Some(id) {
@@ -105,68 +106,80 @@ impl Tree {
         }
     }
 
-    fn free(&mut self, id: TreeRef) {
-        let free = self.free;
-        self.get_mut(id).parent = free;
+    fn free(&mut self, id: NodeId) {
+        self[id].parent = self.free;
         self.free = Some(id);
     }
 
-    pub fn get(&self, id: TreeRef) -> &TreeNode {
-        &self.nodes[id.as_usize()]
+    pub(crate) fn get_unchecked(&self, id: NodeId) -> &Node {
+        unsafe { self.nodes.get_unchecked(id.as_usize()) }
     }
 
-    pub fn get_mut(&mut self, id: TreeRef) -> &mut TreeNode {
-        &mut self.nodes[id.as_usize()]
+    pub(crate) fn get_unchecked_mut(&mut self, id: NodeId) -> &mut Node {
+        unsafe { self.nodes.get_unchecked_mut(id.as_usize()) }
     }
 
-    pub fn dump_dot<W: fmt::Write>(&self, w: &mut W, id: TreeRef) -> fmt::Result {
-        writeln!(w, "digraph tree{id} {{")?;
-        writeln!(w, "    {id} [shape=point];")?;
+    pub fn dump_dot<W: fmt::Write>(&self, w: &mut W, id: NodeId) -> fmt::Result {
+        _ = self[id]; // Bounds check
+        writeln!(w, "digraph tree{} {{", id.0)?;
         let mut stack = VecDeque::new();
         stack.push_back(id);
         while let Some(id) = stack.pop_front() {
-            let node = self.get(id);
+            writeln!(w, "    {} [shape=point];", id.0)?;
+            let node = self.get_unchecked(id);
             if let Some(left) = node.left {
-                writeln!(w, "    {left} [shape=point];")?;
-                writeln!(w, "    {id} -> {left};")?;
+                writeln!(w, "    {} -> {};", id.0, left.0)?;
                 stack.push_back(left);
             }
             if let Some(right) = node.right {
-                writeln!(w, "    {right} [shape=point];")?;
-                writeln!(w, "    {id} -> {right};")?;
+                writeln!(w, "    {} -> {};", id.0, right.0)?;
                 stack.push_back(right);
             }
         }
         writeln!(w, "}}")
     }
+
+    pub fn dump_dot_to_string(&self, id: NodeId) -> String {
+        let mut s = String::new();
+        self.dump_dot(&mut s, id).unwrap();
+        s
+    }
 }
 
-impl TreeNode {
-    pub fn left(&self) -> Option<TreeRef> {
+impl Index<NodeId> for MultiTree {
+    type Output = Node;
+
+    fn index(&self, id: NodeId) -> &Self::Output {
+        &self.nodes[id.as_usize()]
+    }
+}
+
+impl IndexMut<NodeId> for MultiTree {
+    fn index_mut(&mut self, id: NodeId) -> &mut Self::Output {
+        &mut self.nodes[id.as_usize()]
+    }
+}
+
+impl Node {
+    pub fn left(&self) -> Option<NodeId> {
         self.left
     }
 
-    pub fn right(&self) -> Option<TreeRef> {
+    pub fn right(&self) -> Option<NodeId> {
         self.right
     }
 
-    pub fn parent(&self) -> Option<TreeRef> {
+    pub fn parent(&self) -> Option<NodeId> {
         self.parent
     }
 }
 
-impl TreeRef {
+impl NodeId {
     fn new(id: usize) -> Self {
-        TreeRef(unsafe { NonZeroUsize::new_unchecked(id + 1) })
+        NodeId(unsafe { NonZeroUsize::new_unchecked(id + 1) })
     }
 
     fn as_usize(self) -> usize {
         self.0.get() - 1
-    }
-}
-
-impl Display for TreeRef {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        self.as_usize().fmt(f)
     }
 }

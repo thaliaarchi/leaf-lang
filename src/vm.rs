@@ -1,15 +1,12 @@
 use thiserror::Error;
 
-use crate::{Inst, Program, Tree, TreeRef};
+use crate::{Inst, Program, TreeCursor};
 
 #[derive(Clone, Debug)]
 pub struct VM<'a> {
     prog: &'a Program,
     pc: usize,
-    tree: Tree,
-    root: TreeRef,
-    cursor: TreeRef,
-    root_stack: Vec<TreeRef>,
+    tree: TreeCursor,
     loop_stack: Vec<(usize, usize)>,
     success: bool,
 }
@@ -24,15 +21,10 @@ pub enum VMError {
 
 impl<'a> VM<'a> {
     pub fn new(prog: &'a Program) -> Self {
-        let mut tree = Tree::new();
-        let root = tree.new_empty();
         VM {
             prog,
             pc: 0,
-            tree,
-            root,
-            cursor: root,
-            root_stack: vec![root],
+            tree: TreeCursor::new(),
             loop_stack: vec![],
             success: false,
         }
@@ -62,36 +54,19 @@ impl<'a> VM<'a> {
         if let Some(inst) = self.prog.get(self.pc) {
             match *inst {
                 Inst::MoveLeft => {
-                    self.success = false;
-                    if let Some(left) = self.tree.get(self.cursor).left() {
-                        self.cursor = left;
-                        self.success = true;
-                    }
+                    self.success = self.tree.move_left();
                 }
                 Inst::MoveRight => {
-                    self.success = false;
-                    if let Some(right) = self.tree.get(self.cursor).right() {
-                        self.cursor = right;
-                        self.success = true;
-                    }
+                    self.success = self.tree.move_right();
                 }
                 Inst::MoveUp => {
-                    self.success = false;
-                    if let Some(parent) = self.tree.get(self.cursor).parent() {
-                        if self.cursor != self.current_root() {
-                            self.cursor = parent;
-                            self.success = true;
-                        }
-                    }
+                    self.success = self.tree.move_up();
                 }
                 Inst::PushRoot => {
-                    self.root_stack.push(self.cursor);
+                    self.tree.push_root();
                 }
                 Inst::PopRoot => {
-                    if self.root_stack.len() <= 1 {
-                        return Err(VMError::PopRootEmpty);
-                    }
-                    self.root_stack.pop();
+                    self.tree.pop_root().ok_or(VMError::PopRootEmpty)?;
                     self.success = true;
                 }
                 Inst::LoopHead(tail) => {
@@ -107,24 +82,18 @@ impl<'a> VM<'a> {
                     self.success = true;
                 }
                 Inst::NewLeft => {
-                    self.tree.set_left_empty(self.cursor);
+                    self.tree.new_left();
                     self.success = true;
                 }
                 Inst::NewRight => {
-                    self.tree.set_right_empty(self.cursor);
+                    self.tree.new_right();
                     self.success = true;
                 }
                 Inst::Delete => {
-                    let deleted = self.cursor;
-                    self.success = false;
-                    if let Some(parent) = self.tree.get(self.cursor).parent() {
-                        self.cursor = parent;
-                        self.success = true;
-                    }
-                    self.tree.remove(deleted);
+                    self.success = self.tree.delete();
                 }
                 Inst::Break => {
-                    self.success = self.cursor == self.current_root();
+                    self.success = self.tree.at_root();
                     if self.success {
                         self.pc = if let Some((_, tail)) = self.loop_stack.pop() {
                             tail
@@ -141,15 +110,7 @@ impl<'a> VM<'a> {
         }
     }
 
-    pub fn tree(&self) -> &Tree {
+    pub fn tree(&self) -> &TreeCursor {
         &self.tree
-    }
-
-    pub fn root(&self) -> TreeRef {
-        self.root
-    }
-
-    pub fn current_root(&self) -> TreeRef {
-        self.root_stack[self.root_stack.len() - 1]
     }
 }
