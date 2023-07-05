@@ -106,11 +106,11 @@ impl<'a> VM<'a> {
                     }
                     self.success = true;
                 }
-                Inst::AddLeft => {
+                Inst::NewLeft => {
                     self.tree.set_left_empty(self.cursor);
                     self.success = true;
                 }
-                Inst::AddRight => {
+                Inst::NewRight => {
                     self.tree.set_right_empty(self.cursor);
                     self.success = true;
                 }
@@ -123,7 +123,7 @@ impl<'a> VM<'a> {
                     }
                     self.tree.remove(deleted);
                 }
-                Inst::BreakRoot => {
+                Inst::Break => {
                     self.success = self.cursor == self.current_root();
                     if self.success {
                         self.pc = if let Some((_, tail)) = self.loop_stack.pop() {

@@ -17,13 +17,13 @@ pub enum Inst {
     /// `)`
     LoopTail,
     /// `+`
-    AddLeft,
+    NewLeft,
     /// `*`
-    AddRight,
+    NewRight,
     /// `-`
     Delete,
     /// `?`
-    BreakRoot,
+    Break,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -57,10 +57,10 @@ impl Program {
                     prog[head] = Inst::LoopHead(prog.len());
                     Inst::LoopTail
                 }
-                b'+' => Inst::AddLeft,
-                b'*' => Inst::AddRight,
+                b'+' => Inst::NewLeft,
+                b'*' => Inst::NewRight,
                 b'-' => Inst::Delete,
-                b'?' => Inst::BreakRoot,
+                b'?' => Inst::Break,
                 _ => continue,
             };
             prog.push(inst);
