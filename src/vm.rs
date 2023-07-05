@@ -59,43 +59,46 @@ impl<'a> VM<'a> {
 
     #[inline(always)]
     fn step_inline(&mut self) -> Result<(), VMError> {
-        let prev_success = self.success;
-        self.success = false;
         if let Some(inst) = self.prog.get(self.pc) {
             match *inst {
                 Inst::MoveLeft => {
+                    self.success = false;
                     if let Some(left) = self.tree.get(self.cursor).left() {
                         self.cursor = left;
                         self.success = true;
                     }
                 }
                 Inst::MoveRight => {
+                    self.success = false;
                     if let Some(right) = self.tree.get(self.cursor).right() {
                         self.cursor = right;
                         self.success = true;
                     }
                 }
                 Inst::MoveUp => {
+                    self.success = false;
                     if let Some(parent) = self.tree.get(self.cursor).parent() {
-                        if parent != self.current_root() {
+                        if self.cursor != self.current_root() {
                             self.cursor = parent;
                             self.success = true;
                         }
                     }
                 }
-                Inst::PushRoot => self.root_stack.push(self.cursor),
+                Inst::PushRoot => {
+                    self.root_stack.push(self.cursor);
+                }
                 Inst::PopRoot => {
                     if self.root_stack.len() <= 1 {
                         return Err(VMError::PopRootEmpty);
                     }
-                    self.cursor = self.root_stack.pop().unwrap();
+                    self.root_stack.pop();
                     self.success = true;
                 }
                 Inst::LoopHead(tail) => {
                     self.loop_stack.push((self.pc, tail));
                 }
                 Inst::LoopTail => {
-                    if prev_success {
+                    if self.success {
                         let (head, _) = self.loop_stack[self.loop_stack.len() - 1];
                         self.pc = head;
                     } else {
@@ -113,9 +116,10 @@ impl<'a> VM<'a> {
                 }
                 Inst::Delete => {
                     let deleted = self.cursor;
+                    self.success = false;
                     if let Some(parent) = self.tree.get(self.cursor).parent() {
-                        self.success = true;
                         self.cursor = parent;
+                        self.success = true;
                     }
                     self.tree.remove(deleted);
                 }
