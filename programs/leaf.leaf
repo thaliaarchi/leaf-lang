@@ -25,7 +25,8 @@
 1   +                          *>
 9  {+<+<+<+<+<+<+<+<+     (^)} *>
 
-{(? Tree to visualize instruction execution counts:
+{(?
+  Tree to visualize instruction execution counts:
                 .
              /     \
           /           \
@@ -42,20 +43,6 @@
 *>+<
 +<+<+*^*>+*^^*>+<+*>+*^^*>+<+*^*>+*^^^
 ^
-
-{(? Expressions to increment each instruction count: )}
-
-(>)<<<<(>)*(^)
-(>)<<<>(>)*(^)
-(>)<<><(>)*(^)
-(>)<<>>(>)*(^)
-(>)<><<(>)*(^)
-(>)<><><(>)*(^)
-(>)<><>>(>)*(^)
-(>)<>><<(>)*(^)
-(>)<>><>(>)*(^)
-(>)<>>><(>)*(^)
-(>)<>>>>(>)*(^)
 
 {(?
   VM state:
@@ -78,4 +65,48 @@
     .     .    …
     |     |
   left   right
+)}
+
+{(?
+  Instruction dispatch:
+
+  This uses the pattern ^(? ELSE (^)<{>)>? THEN in a chain to switch over the
+  opcode at PC.
+
+    ^(?     Break, if the cursor has reached the head of the opcode
+      ELSE  Otherwise, move up and execute ELSE
+      (^)   Return to the opcode
+      <{    Enter the opcode and set the root, so it cannot move right
+    >)      Break
+    >?      Break, if it cannot move right (i.e., ELSE was executed)
+    THEN    Otherwise, execute THEN
+)}
+
+(^)
+(
+  {(<)?
+  (^(?^(?^(?^(?^(?^(?^(?^(?^(?^(?^
+    11: (>)<>>>>(>)*
+  (^)<{>)>?
+    10: (>)<>>><(>)*
+  (^)<{>)>?
+    9: (>)<>><>(>)*
+  (^)<{>)>?
+    8: (>)<>><<(>)*
+  (^)<{>)>?
+    7: (>)<><>>(>)*
+  (^)<{>)>?
+    6: (>)<><><(>)*
+  (^)<{>)>?
+    5: (>)<><<(>)*
+  (^)<{>)>?
+    4: (>)<<>>(>)*
+  (^)<{>)>?
+    3: (>)<<><(>)*
+  (^)<{>)>?
+    2: (>)<<<>(>)*
+  (^)<{>)>?
+    1: (>)<<<<(>)*
+  (^)<{>)
+  }}^>
 )}
