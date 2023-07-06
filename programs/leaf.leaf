@@ -26,25 +26,6 @@
 9  {+<+<+<+<+<+<+<+<+     (^)} *>
 
 {(?
-  Tree to visualize instruction execution counts:
-                .
-             /     \
-          /           \
-       .                 .
-      / \              /   \
-     /   \           /       \
-    .     .        .           .
-   / \   / \     /   \       /   \
-  +   * <   >   ^     .     .     .
-                     / \   / \   / \
-                    (   ) {   } -   ?
-)}
-
-*>+<
-+<+<+*^*>+*^^*>+<+*>+*^^*>+<+*^*>+*^^^
-^
-
-{(?
   VM state:
   - pc         : marked with a root
   - success    : a right flag on bit 0 of the instruction
@@ -54,59 +35,133 @@
   - cursor     : a flag on each branch leading to the cursor
   - root stack : a number on each node indicating how many times it was pushed
 
-           parent
-             |
-             .
-           /   \
-          .     . cursor?
-        /   \
-       .     … root count
-     /   \    \
-    .     .    …
-    |     |
-  left   right
+                parent
+                  |
+                  .
+                /   \
+              .       … root count
+            /   \      \
+          .       .     …
+         / \     / \
+        ?   ?   ?   ?
+      left    right
+          cursor  cursor
 )}
+
+Initialize an empty root node with a root count of 1:
+
+*>+<
++*<+*(^)
 
 {(?
-  Instruction dispatch:
+  Instruction dispatch with ^(? ELSE <{>)>? THEN:
 
-  This uses the pattern ^(? ELSE (^)<{>)>? THEN in a chain to switch over the
-  opcode at PC.
+    ^(?         Break, if the cursor has reached the head of the opcode
+      ELSE      Otherwise, move up and execute ELSE
+      <{        Enter the opcode and set the root, so it cannot move right
+    >)          Break
+    >?          Break, if it cannot move right (i.e., ELSE was executed)
+    THEN        Otherwise, execute THEN
 
-    ^(?     Break, if the cursor has reached the head of the opcode
-      ELSE  Otherwise, move up and execute ELSE
-      (^)   Return to the opcode
-      <{    Enter the opcode and set the root, so it cannot move right
-    >)      Break
-    >?      Break, if it cannot move right (i.e., ELSE was executed)
-    THEN    Otherwise, execute THEN
+  Seek to the cursor in the VM tree with (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}:
+
+    (>)         Move to the VM tree
+    (           Loop
+      <<        Enter the node
+      {{        Push two roots at the center of the node
+      <>^(?     If the left child has a cursor flag,
+        >}{     rebase in the flag to lock, so it fails the next condition
+      >)
+      >>^(?     If the right child has a cursor flag,
+        >}{     rebase in the flag to lock
+      >)
+      }?}       Break, if it couldn't visit a child
+      ^         Move out of the flag
+    )}
+
 )}
 
-(^)
+VM loop:
+
 (
   {(<)?
   (^(?^(?^(?^(?^(?^(?^(?^(?^(?^(?^
-    11: (>)<>>>>(>)*
-  (^)<{>)>?
-    10: (>)<>>><(>)*
-  (^)<{>)>?
-    9: (>)<>><>(>)*
-  (^)<{>)>?
-    8: (>)<>><<(>)*
-  (^)<{>)>?
-    7: (>)<><>>(>)*
-  (^)<{>)>?
-    6: (>)<><><(>)*
-  (^)<{>)>?
-    5: (>)<><<(>)*
-  (^)<{>)>?
-    4: (>)<<>>(>)*
-  (^)<{>)>?
-    3: (>)<<><(>)*
-  (^)<{>)>?
-    2: (>)<<<>(>)*
-  (^)<{>)>?
-    1: (>)<<<<(>)*
-  (^)<{>)
+
+    11 Break
+    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
+    TODO
+    (^)
+
+  <{>)>?
+
+    10 Delete
+    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
+    TODO
+    (^)
+
+  <{>)>?
+
+    9 Pop root
+    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
+    TODO
+    (^)
+
+  <{>)>?
+
+    8 Push root
+    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
+    TODO
+    (^)
+
+  <{>)>?
+
+    7 Loop tail
+    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
+    TODO
+    (^)
+
+  <{>)>?
+
+    6 Loop head
+    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
+    TODO
+    (^)
+
+  <{>)>?
+
+    5 Move up
+    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
+    TODO
+    (^)
+
+  <{>)>?
+
+    4 Move right
+    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
+    TODO
+    (^)
+
+  <{>)>?
+
+    3 Move left
+    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
+    TODO
+    (^)
+
+  <{>)>?
+
+    2 New right
+    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
+    TODO
+    (^)
+
+  <{>)>?
+
+    1 New left
+    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
+    TODO
+    (^)
+
+  <{>)
   }}^>
 )}

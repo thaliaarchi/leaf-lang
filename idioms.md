@@ -4,7 +4,8 @@
 - Block comment: `{(? … )}`
 - Delete left child: `+<-`
 - Delete right child: `*>-`
-- Unconditionally break loop:
+- Unconditionally exit loop:
   - `(… (^)^)`
   - `(… (<)<)`
   - `(… (>)>)`
+  - `(… {^)`
