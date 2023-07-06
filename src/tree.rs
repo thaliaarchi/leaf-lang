@@ -79,8 +79,11 @@ impl MultiTree {
         let node = &mut self[id];
         let old = node.left;
         node.left = left;
-        if let Some(left) = old {
-            self.free(left);
+        if let Some(left) = left {
+            self.get_unchecked_mut(left).parent = Some(id);
+        }
+        if let Some(old_left) = old {
+            self.free(old_left);
         }
     }
 
@@ -88,8 +91,11 @@ impl MultiTree {
         let node = &mut self[id];
         let old = node.right;
         node.right = right;
-        if let Some(right) = old {
-            self.free(right);
+        if let Some(right) = right {
+            self.get_unchecked_mut(right).parent = Some(id);
+        }
+        if let Some(old_right) = old {
+            self.free(old_right);
         }
     }
 
