@@ -138,7 +138,7 @@ impl MultiTree {
                 stack.push_back(left);
             }
             if let Some(right) = node.right {
-                writeln!(w, "    {} -> {};", id.0, right.0)?;
+                writeln!(w, "    {} -> {} [style=dashed];", id.0, right.0)?;
                 stack.push_back(right);
             }
         }
