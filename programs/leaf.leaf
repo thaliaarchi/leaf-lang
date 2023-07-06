@@ -1,0 +1,69 @@
+(?
+  Instruction encoding:
+    + 1
+    * 2
+    < 3
+    > 4
+    ^ 5
+    ( 6
+    ) 7
+    { 8
+    } 9
+    - 10
+    ? 11
+)
+
+(? 6_conditional.leaf: *{(?+*)+} )
+
+2   +<+                   ^    *>
+8  {+<+<+<+<+<+<+<+       (^)} *>
+6  {+<+<+<+<+<+           (^)} *>
+11 {+<+<+<+<+<+<+<+<+<+<+ (^)} *>
+1   +                          *>
+2   +<+                   ^    *>
+7  {+<+<+<+<+<+<+         (^)} *>
+1   +                          *>
+9  {+<+<+<+<+<+<+<+<+     (^)} *>
+
+{(? Tree to visualize instruction execution counts:
+                .
+             /     \
+          /           \
+       .                 .
+      / \              /   \
+     /   \           /       \
+    .     .        .           .
+   / \   / \     /   \       /   \
+  +   * <   >   ^     .     .     .
+                     / \   / \   / \
+                    (   ) {   } -   ?
+)}
+
+*>+<
++<+<+*^*>+*^^*>+<+*>+*^^*>+<+*^*>+*^^^
+^
+
+{(? Expressions to increment each instruction count: )}
+
+(>)<<<<(>)*(^)
+(>)<<<>(>)*(^)
+(>)<<><(>)*(^)
+(>)<<>>(>)*(^)
+(>)<><<(>)*(^)
+(>)<><><(>)*(^)
+(>)<><>>(>)*(^)
+(>)<>><<(>)*(^)
+(>)<>><>(>)*(^)
+(>)<>>><(>)*(^)
+(>)<>>>>(>)*(^)
+
+{(?
+  VM state:
+  - pc         : marked with a root
+  - success    : a right flag on bit 0 of the instruction
+  - loop stack : a root for every loop head
+
+  Tree state:
+  - cursor     : a flag on each branch leading to the cursor
+  - root stack : a number on each node indicating how many times it was pushed
+)}

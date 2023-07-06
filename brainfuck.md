@@ -120,9 +120,3 @@ For 30,000 cells:
 ```leaf
 (<?^ … )
 ```
-
-## Header comment
-
-```leaf
-(? … )
-```
