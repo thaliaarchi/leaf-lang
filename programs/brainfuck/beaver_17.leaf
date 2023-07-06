@@ -1,0 +1,26 @@
+(?
+  A Leaf translation of the longest-running Brainfuck program of length 17, that
+  Beaver can prove terminates: >+[>++>+++[-<]>>]
+  This uses non-wrapping arithmetic and right-unbounded cells.
+  https://github.com/eterevsky/beaver
+)
+
+*{
+
+}>{(>)^*(^)
+(<)+(^)
+(<?^
+  }>{(>)^*(^)
+  (<)+(^)
+  (<)+(^)
+  }>{(>)^*(^)
+  (<)+(^)
+  (<)+(^)
+  (<)+(^)
+  (<?^
+    (<)(?-(^))
+    }^{
+  )
+  }>{(>)^*(^)
+  }>{(>)^*(^)
+)
