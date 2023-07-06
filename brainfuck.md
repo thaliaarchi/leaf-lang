@@ -1,81 +1,74 @@
 # Brainfuck in Leaf
 
-## Initialize 30,000 cells
+## Initialize finite cells
 
 ```leaf
 +*>+*>+*>+*> 29,999 times +*>+*>+*>+*>
-(^)
++(^)<{
 ```
 
-## `>` Move right
+## `>` Move right (bounded)
 
 ```leaf
->
+}^><{
 ```
 
-## `<` Move left
+## `<` Move left (bounded)
 
 ```leaf
-^
+}^^<{
 ```
 
 ## `+` Increment cell (non-wrapping)
 
 ```leaf
-{<      Set the root and enter the cell
-(>)*    Move to the tail of the cell and add a leaf
-(^)}    Return to the tape and pop the root
+(>)*    Move to the cell tail and add a leaf
+(^)     Return to the cell head
 ```
 
 ```leaf
-{<(>)*(^)}
+(>)*(^)
 ```
 
 ## `-` Decrement cell (non-wrapping)
 
 ```leaf
-<{      Enter the cell and set the root
-(
-  (>)   Move to the tail of the cell
-  ?     Break, if the value is 0
-  -(^)  Otherwise, remove the tail leaf and return to the root
-^)      Break
-}^      Pop the root and return to the tape
+(>)     Move to the cell tail
+(?      If the value is non-zero,
+  -(^)  remove the tail leaf and return to the cell head
+)
 ```
 
 ```leaf
-<{((>)?-(^)^)}^
+(>)(?-(^))
 ```
 
 ## `+` Increment cell (wrapping)
 
 ```leaf
-<{      Enter the cell and set the root
-(>)*    Move to the tail of the cell and add a leaf
-(
-        Move to the root and break, if the new value is less than 256
-  ^^^^^^^^ ^^^^^^^^ ^^^^^^^^ ^^^^^^^^
-  ^^^^^^^^ ^^^^^^^^ ^^^^^^^^ ^^^^^^^^
-  ^^^^^^^^ ^^^^^^^^ ^^^^^^^^ ^^^^^^^^
-  ^^^^^^^^ ^^^^^^^^ ^^^^^^^^ ^^^^^^^^
-  ^^^^^^^^ ^^^^^^^^ ^^^^^^^^ ^^^^^^^^
-  ^^^^^^^^ ^^^^^^^^ ^^^^^^^^ ^^^^^^^^
-  ^^^^^^^^ ^^^^^^^^ ^^^^^^^^ ^^^^^^^^
-  ^^^^^^^^ ^^^^^^^^ ^^^^^^^^ ^^^^^^ ?
-  -^    Otherwise, delete the value to set it to 0
+(>)*    Move to the cell tail and add a leaf
+        Move up at most 254 places
+^^^^^^^^ ^^^^^^^^ ^^^^^^^^ ^^^^^^^^
+^^^^^^^^ ^^^^^^^^ ^^^^^^^^ ^^^^^^^^
+^^^^^^^^ ^^^^^^^^ ^^^^^^^^ ^^^^^^^^
+^^^^^^^^ ^^^^^^^^ ^^^^^^^^ ^^^^^^^^
+^^^^^^^^ ^^^^^^^^ ^^^^^^^^ ^^^^^^^^
+^^^^^^^^ ^^^^^^^^ ^^^^^^^^ ^^^^^^^^
+^^^^^^^^ ^^^^^^^^ ^^^^^^^^ ^^^^^^^^
+^^^^^^^^ ^^^^^^^^ ^^^^^^^^ ^^^^^^
+(?      If the new value is greater than 255 (i.e., 256),
+  -     delete the value to set it to 0
 )
-}^      Pop the root and return to the tape
 ```
 
 ```leaf
-<{(>)*(^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^?-^)}^
+(>)*^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^(?-)
 ```
 
 ## `-` Decrement cell (wrapping)
 
 ```leaf
-<{      Enter the cell and set the root
-(>)+    Move to the tail of the cell and add a "flag" left branch
+(>)+    Move to the cell tail and add a "flag" left branch
 (?      If the value is non-zero,
   -(^)  remove the leaf and flag and return to the root
 )
@@ -90,29 +83,24 @@
   *>*>*>*>*>*>*>*> *>*>*>*>*>*>*>*> *>*>*>*>*>*>*>*> *>*>*>*>*>*>*>*>
   *>*>*>*>*>*>*>*> *>*>*>*>*>*>*>*> *>*>*>*>*>*>*>*> *>*>*>*>*>*>*>*>
   *>*>*>*>*>*>*>*> *>*>*>*>*>*>*>*> *>*>*>*>*>*>*>*> *>*>*>*>*>*>*>
-  (^)   and return to the root
+  (^)   and return to the cell head
 )
-}^      Pop the root and return to the tape
 ```
 
 ```leaf
-<{(>)+(?-(^))<(?-*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>(^))}^
+(>)+(?-(^))<(?-*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>*>(^))
 ```
 
 ## `[ … ]` Loop
 
 ```leaf
-(       Loop
-<{      Enter the cell and set the root
->?      Break, if the value is 0
-}^^     Otherwise, pop the root and return to the tape
+(>?^    While the value is non-zero
 …       Execute the loop body
 )       Repeat
-}^      Pop the root and return to the tape
 ```
 
 ```leaf
-(<{>?}^^ … )}^
+(>?^ … )
 ```
 
 ## Header comment
