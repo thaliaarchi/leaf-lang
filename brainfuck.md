@@ -1,10 +1,18 @@
 # Brainfuck in Leaf
 
-## Initialize finite cells
+## Initialize cells (bounded)
+
+For 30,000 cells:
 
 ```leaf
 *>*>*>*> 29,999 times *>*>*>*
 (^){
+```
+
+## Initialize cells (unbounded)
+
+```leaf
+*{
 ```
 
 ## `>` Move right (bounded)
@@ -17,6 +25,18 @@
 
 ```leaf
 }^{
+```
+
+## `>` Move right (unbounded)
+
+```leaf
+}>{     Move right and rebase
+(>)^*   Add a leaf to the end, if one is not present
+(^)     Return to the cell
+```
+
+```leaf
+}>{(>)^*(^)
 ```
 
 ## `+` Increment cell (non-wrapping)
