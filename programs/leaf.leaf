@@ -66,4 +66,16 @@
   Tree state:
   - cursor     : a flag on each branch leading to the cursor
   - root stack : a number on each node indicating how many times it was pushed
+
+           parent
+             |
+             .
+           /   \
+          .     . cursor?
+        /   \
+       .     … root count
+     /   \    \
+    .     .    …
+    |     |
+  left   right
 )}
