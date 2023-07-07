@@ -13,8 +13,6 @@ pub struct VM<'a> {
 
 #[derive(Error, Clone, Debug, PartialEq, Eq)]
 pub enum VMError {
-    #[error("cannot pop root (`}}` without `{{`)")]
-    PopRootEmpty,
     #[error("VM has terminated")]
     Terminated,
 }
@@ -66,8 +64,7 @@ impl<'a> VM<'a> {
                     self.tree.push_root();
                 }
                 Inst::PopRoot => {
-                    self.tree.pop_root().ok_or(VMError::PopRootEmpty)?;
-                    self.success = true;
+                    self.success = self.tree.pop_root().is_some();
                 }
                 Inst::LoopHead(tail) => {
                     self.loop_stack.push((self.pc, tail));
