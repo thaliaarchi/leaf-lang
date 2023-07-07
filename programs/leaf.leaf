@@ -16,26 +16,30 @@
 {(?
 {(? 6_conditional.leaf: *{(?+*)+} )}
 
-2   +<+                   ^    *>
-8  {+<+<+<+<+<+<+<+       (^)} *>
-6  {+<+<+<+<+<+           (^)} *>
-11 {+<+<+<+<+<+<+<+<+<+<+ (^)} *>
-1   +                          *>
-2   +<+                   ^    *>
-7  {+<+<+<+<+<+<+         (^)} *>
-1   +                          *>
-9  {+<+<+<+<+<+<+<+<+     (^)} *>
+2   +<+                   ^    *> new right
+8  {+<+<+<+<+<+<+<+       (^)} *> push root
+6  {+<+<+<+<+<+           (^)} *> loop head
+11 {+<+<+<+<+<+<+<+<+<+<+ (^)} *> break
+1   +                          *> new left
+2   +<+                   ^    *> new right
+7  {+<+<+<+<+<+<+         (^)} *> loop tail
+1   +                          *> new left
+9  {+<+<+<+<+<+<+<+<+     (^)} *> pop root
 )}
 
-{(? +**>+><* )}
-1   +                          *>
-2   +<+                   ^    *>
-2   +<+                   ^    *>
-4   +<+<+<+               ^^^  *>
-1   +                          *>
-4   +<+<+<+               ^^^  *>
-3   +<+<+                 ^^   *>
-2   +<+                   ^    *>
+{(? +**>{+><*^^* )}
+1   +                          *> new left
+2   +<+                   ^    *> new right
+2   +<+                   ^    *> new right
+4   +<+<+<+               ^^^  *> move right
+8  {+<+<+<+<+<+<+<+       (^)} *> push root
+1   +                          *> new left
+4   +<+<+<+               ^^^  *> move right
+3   +<+<+                 ^^   *> move left
+2   +<+                   ^    *> new right
+5  {+<+<+<+<+             (^)} *> move up
+5  {+<+<+<+<+             (^)} *> move up
+2   +<+                   ^    *> new right
 
 {(?
   VM state:
@@ -79,16 +83,16 @@ Initialization:
   Seek to the cursor in the VM tree with (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}:
 
     (           Loop
-      <<        Enter the node
-      {{        Push two roots at the center of the node
-      <>^(?     If the left child has a cursor flag,
-        >}{     rebase in the flag to lock, so it fails the next condition
+      <<          Enter the node
+      {{          Push two roots at the center of the node
+      <>^(?       If the left child has a cursor flag,
+        >}{         rebase in the flag to lock, so it fails the next condition
       >)
-      >>^(?     If the right child has a cursor flag,
-        >}{     rebase in the flag to lock
+      >>^(?       If the right child has a cursor flag,
+        >}{         rebase in the flag to lock
       >)
-      }?}       Break, if it couldn't visit a child
-      ^         Move out of the flag
+      }?}         Break, if it couldn't visit a child
+      ^           Move out of the flag
     )
     }           Pop the root
 
@@ -149,10 +153,13 @@ VM loop:
   <{>)>?
     5 Move up
 
-    (>)
+    (>)^{+<->   Clear success
     (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
-    TODO
-    (^)
+    ^{><<^(?    If the current node is not a root,
+      }^^>-       clear its cursor flag,
+      (^)+        and mark success
+    {)}
+    }(^)
 
   <{>)>?
     4 Move right
@@ -160,8 +167,8 @@ VM loop:
     (>)^{+<->   Clear success
     (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
     >{<(?       If the right child exists,
-      }^*       mark its cursor flag,
-      (^)+      and mark success
+      }^*         mark its cursor flag,
+      (^)+        and mark success
     {)}
     }(^)
 
@@ -171,8 +178,8 @@ VM loop:
     (>)^{+<->   Clear success
     (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
     <{<(?       If the left child exists,
-      }^*       mark its cursor flag,
-      (^)+      and mark success
+      }^*         mark its cursor flag,
+      (^)+        and mark success
     {)}
     }(^)
 

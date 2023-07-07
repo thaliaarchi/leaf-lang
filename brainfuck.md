@@ -55,7 +55,7 @@ For 30,000 cells:
 ```leaf
 (<)     Move to the cell tail
 (?      If the value is non-zero,
-  -(^)  remove the tail leaf and return to the cell head
+  -(^)    remove the tail leaf and return to the cell head
 )
 ```
 
@@ -77,7 +77,7 @@ For 30,000 cells:
 ^^^^^^^^ ^^^^^^^^ ^^^^^^^^ ^^^^^^^^
 ^^^^^^^^ ^^^^^^^^ ^^^^^^^^ ^^^^^^
 (?      If the new value is greater than 255 (i.e., 256),
-  -     delete the value to set it to 0
+  -       delete the value to set it to 0
 )
 ```
 
@@ -91,7 +91,7 @@ For 30,000 cells:
 (<)+    Move to the cell tail and add a "flag" leaf
 (?-<)   If the value is non-zero, remove the leaf and flag
 {<(?    If the flag is present,
-        set the value to 255,
+          set the value to 255
   +<+<+<+<+<+<+<+< +<+<+<+<+<+<+<+< +<+<+<+<+<+<+<+< +<+<+<+<+<+<+<+<
   +<+<+<+<+<+<+<+< +<+<+<+<+<+<+<+< +<+<+<+<+<+<+<+< +<+<+<+<+<+<+<+<
   +<+<+<+<+<+<+<+< +<+<+<+<+<+<+<+< +<+<+<+<+<+<+<+< +<+<+<+<+<+<+<+<
@@ -100,7 +100,7 @@ For 30,000 cells:
   +<+<+<+<+<+<+<+< +<+<+<+<+<+<+<+< +<+<+<+<+<+<+<+< +<+<+<+<+<+<+<+<
   +<+<+<+<+<+<+<+< +<+<+<+<+<+<+<+< +<+<+<+<+<+<+<+< +<+<+<+<+<+<+<+<
   +<+<+<+<+<+<+<+< +<+<+<+<+<+<+<+< +<+<+<+<+<+<+<+< +<+<+<+<+<+
-  >     Break
+  >       and break
 )}
 (^)     Return to the cell head
 ```
@@ -112,9 +112,9 @@ For 30,000 cells:
 ## `[ … ]` Loop
 
 ```leaf
-(<?^    While the value is non-zero
-…       Execute the loop body
-)       Repeat
+(<?^    While the value is non-zero,
+  …       execute the loop body
+)
 ```
 
 ```leaf
