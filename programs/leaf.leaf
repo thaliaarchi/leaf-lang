@@ -60,10 +60,11 @@
           cursor  cursor
 )}
 
-Initialize an empty root node with a root count of 1:
+Initialization:
 
-*>+<
-+*<+*(^)
+*>              Create slot for success flag
+*> +< +*<+*     Initialize tree root as an empty node with root count of 1
+(^)
 
 {(?
   Instruction dispatch with ^(? ELSE <{>)>? THEN:
@@ -75,9 +76,8 @@ Initialize an empty root node with a root count of 1:
     >?          Break, if it cannot move right (i.e., ELSE was executed)
     THEN        Otherwise, execute THEN
 
-  Seek to the cursor in the VM tree with (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}:
+  Seek to the cursor in the VM tree with (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}:
 
-    (>)         Move to the VM tree
     (           Loop
       <<        Enter the node
       {{        Push two roots at the center of the node
@@ -99,86 +99,99 @@ VM loop:
 (
   {(<)?
   (^(?^(?^(?^(?^(?^(?^(?^(?^(?^(?^
-    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
-
     11 Break
+
+    (>)
+    (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
     TODO
-
     (^)
-  <{>)>?
-    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
 
+  <{>)>?
     10 Delete
+
+    (>)
+    (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
     TODO
-
     (^)
-  <{>)>?
-    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
 
+  <{>)>?
     9 Pop root
+
+    (>)
+    (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
     TODO
-
     (^)
-  <{>)>?
-    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
 
+  <{>)>?
     8 Push root
+
+    (>)
+    (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
     ^(>)*       Increment the root count
-
     (^)
-  <{>)>?
-    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
 
+  <{>)>?
     7 Loop tail
+
+    (>)
+    (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
     TODO
-
     (^)
-  <{>)>?
-    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
 
+  <{>)>?
     6 Loop head
+
+    (>)
+    (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
     TODO
-
     (^)
-  <{>)>?
-    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
 
+  <{>)>?
     5 Move up
+
+    (>)
+    (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
     TODO
-
     (^)
-  <{>)>?
-    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
 
+  <{>)>?
     4 Move right
+
+    (>)^{+<->   Clear success
+    (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
     >{<(?       If the right child exists,
-      }^*       mark its cursor flag
+      }^*       mark its cursor flag,
+      (^)+      and mark success
     {)}
+    }(^)
 
-    (^)
   <{>)>?
-    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
-
     3 Move left
+
+    (>)^{+<->   Clear success
+    (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
     <{<(?       If the left child exists,
-      }^*       mark its cursor flag
+      }^*       mark its cursor flag,
+      (^)+      and mark success
     {)}
+    }(^)
 
-    (^)
   <{>)>?
-    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
-
     2 New right
+
+    (>)^+>      Mark success
+    (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
     >+<+<+*     Create a new node to the left
-
     (^)
+
   <{>)>?
-    (>)(<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}
-
     1 New left
-    <+<+<+*     Create a new node to the left
 
+    (>)^+>      Mark success
+    (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
+    <+<+<+*     Create a new node to the left
     (^)
+
   <{>)
   }}^>
 )}
