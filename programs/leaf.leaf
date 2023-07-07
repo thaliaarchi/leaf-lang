@@ -27,7 +27,7 @@
 9  {+<+<+<+<+<+<+<+<+     (^)} *> pop root
 )}
 
-{(? +**>{+><*^^* )}
+{(? +**>{+><*^^*- )}
 1   +                          *> new left
 2   +<+                   ^    *> new right
 2   +<+                   ^    *> new right
@@ -40,6 +40,7 @@
 5  {+<+<+<+<+             (^)} *> move up
 5  {+<+<+<+<+             (^)} *> move up
 2   +<+                   ^    *> new right
+10 {+<+<+<+<+<+<+<+<+<+   (^)} *> delete
 
 {(?
   VM state:
@@ -113,10 +114,14 @@ VM loop:
   <{>)>?
     10 Delete
 
-    (>)
+    (>)^{+<->   Clear success and set a root there
     (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
-    TODO
-    (^)
+    ^{><<^(?}   If the current node is not a root,
+      ^-          delete it,
+      >-          clear its cursor flag,
+      (^)+        and mark success
+    {)}
+    }(^)
 
   <{>)>?
     9 Pop root
@@ -153,10 +158,10 @@ VM loop:
   <{>)>?
     5 Move up
 
-    (>)^{+<->   Clear success
+    (>)^{+<->   Clear success and set a root there
     (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
-    ^{><<^(?    If the current node is not a root,
-      }^^>-       clear its cursor flag,
+    ^{><<^(?}   If the current node is not a root,
+      ^^>-        clear its cursor flag,
       (^)+        and mark success
     {)}
     }(^)
@@ -164,10 +169,10 @@ VM loop:
   <{>)>?
     4 Move right
 
-    (>)^{+<->   Clear success
+    (>)^{+<->   Clear success and set a root there
     (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
-    >{<(?       If the right child exists,
-      }^*         mark its cursor flag,
+    >{<(?}      If the right child exists,
+      ^*          mark its cursor flag,
       (^)+        and mark success
     {)}
     }(^)
@@ -175,10 +180,10 @@ VM loop:
   <{>)>?
     3 Move left
 
-    (>)^{+<->   Clear success
+    (>)^{+<->   Clear success and set a root there
     (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
-    <{<(?       If the left child exists,
-      }^*         mark its cursor flag,
+    <{<(?}      If the left child exists,
+      ^*          mark its cursor flag,
       (^)+        and mark success
     {)}
     }(^)
