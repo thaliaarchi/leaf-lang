@@ -13,6 +13,23 @@
     ? 11
 )}
 
+{(? 4_loops.leaf *>*>*>*>(^)(+>) )}
+2   +<+                   ^    *> new right
+4   +<+<+<+               ^^^  *> move right
+2   +<+                   ^    *> new right
+4   +<+<+<+               ^^^  *> move right
+2   +<+                   ^    *> new right
+4   +<+<+<+               ^^^  *> move right
+2   +<+                   ^    *> new right
+4   +<+<+<+               ^^^  *> move right
+6  {+<+<+<+<+<+           (^)} *> loop head
+5  {+<+<+<+<+             (^)} *> move up
+7  {+<+<+<+<+<+<+         (^)} *> loop tail
+6  {+<+<+<+<+<+           (^)} *> loop head
+1   +                          *> new left
+4   +<+<+<+               ^^^  *> move right
+7  {+<+<+<+<+<+<+         (^)} *> loop tail
+
 {(?
 {(? 6_conditional.leaf: *{(?+*)+} )}
 
@@ -27,6 +44,7 @@
 9  {+<+<+<+<+<+<+<+<+     (^)} *> pop root
 )}
 
+{(?
 {(? +**>{+><*^^*- )}
 1   +                          *> new left
 2   +<+                   ^    *> new right
@@ -41,6 +59,7 @@
 5  {+<+<+<+<+             (^)} *> move up
 2   +<+                   ^    *> new right
 10 {+<+<+<+<+<+<+<+<+<+   (^)} *> delete
+)}
 
 {(?
   VM state:
@@ -106,10 +125,16 @@ VM loop:
   (^(?^(?^(?^(?^(?^(?^(?^(?^(?^(?^
     11 Break
 
-    (>)
+    (>)^{+<->   Clear success and set a root there
     (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
-    TODO
-    (^)
+    ^{>(?}      If the current node is a root,
+      (^)+        mark success,
+      }(^)        return to the instruction
+
+      TODO        seek to the loop end
+
+    {{)}
+    }(^)
 
   <{>)>?
     10 Delete
@@ -143,17 +168,19 @@ VM loop:
     7 Loop tail
 
     (>)
-    (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
-    TODO
-    (^)
+    ^{<(?}      If the success flag is set,
+      }(^){       rebase to the loop head, and
+      <           block it from moving right
+    {)
+    >(?}        If the success flag is not set,
+      (^)}}{      unset the loop head root
+    {)}
+    ^
 
   <{>)>?
     6 Loop head
 
-    (>)
-    (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
-    TODO
-    (^)
+    ^{          Push a root at the loop head
 
   <{>)>?
     5 Move up
