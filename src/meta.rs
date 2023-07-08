@@ -1,6 +1,7 @@
 use thiserror::Error;
 
-use crate::{Inst, MultiTree, NodeId, ParseError, Program, TreeCursor, VM};
+use crate::tree::RootedTree;
+use crate::{Inst, ParseError, Program, VM};
 
 #[derive(Error, Clone, Debug, PartialEq, Eq)]
 pub enum ParseMetaVMError {
@@ -16,19 +17,21 @@ pub enum ParseMetaVMError {
     DataAfterTree,
 }
 
-impl TreeCursor {
+impl RootedTree {
     pub fn parse_meta_vm(&self) -> Result<VM, ParseMetaVMError> {
-        let tree = self.unrooted();
-        let mut cursor = self.root_stack()[0];
+        let mut view = self.unrooted().view(self.root_stack()[0]);
 
         let mut prog = Vec::new();
         let mut pc = 0;
         loop {
-            let node = &tree[cursor];
-            cursor = node.right().ok_or(ParseMetaVMError::MissingTree)?;
-            if let Some(left) = node.left() {
-                let value = tree
-                    .left_int_value(left)
+            let left = view.left();
+            if !view.move_right() {
+                return Err(ParseMetaVMError::MissingTree);
+            }
+            if let Some(left) = left {
+                let value = view
+                    .at(left)
+                    .count_left_only()
                     .ok_or_else(|| ParseMetaVMError::InvalidNumber(pc))?;
                 let opcode = match value + 1 {
                     1 => Inst::NewLeft,
@@ -52,15 +55,18 @@ impl TreeCursor {
         }
         let prog = Program::from_insts(prog)?;
 
-        let success = tree[cursor].left().is_some();
-        cursor = tree[cursor].right().ok_or(ParseMetaVMError::MissingTree)?;
-        if tree[cursor].right().is_some() {
+        let success = view.left().is_some();
+        if !view.move_right() {
+            return Err(ParseMetaVMError::MissingTree);
+        }
+        if view.right().is_some() {
             return Err(ParseMetaVMError::DataAfterTree);
         }
-        cursor = tree[cursor].left().ok_or(ParseMetaVMError::MissingTree)?;
+        if !view.move_left() {
+            return Err(ParseMetaVMError::MissingTree);
+        }
 
-        let tree = TreeCursor::new();
-        _ = cursor;
+        let tree = RootedTree::new();
 
         Ok(VM {
             prog,
@@ -69,24 +75,5 @@ impl TreeCursor {
             loop_stack: vec![],
             success,
         })
-    }
-}
-
-impl MultiTree {
-    fn left_int_value(&self, id: NodeId) -> Option<u64> {
-        let mut cursor = id;
-        let mut n = 0;
-        loop {
-            let node = &self[cursor];
-            if node.right().is_some() {
-                return None;
-            }
-            if let Some(left) = node.left() {
-                cursor = left;
-                n += 1;
-            } else {
-                return Some(n);
-            }
-        }
     }
 }

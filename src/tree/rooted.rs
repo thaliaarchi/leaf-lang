@@ -1,19 +1,19 @@
 use std::fmt;
 
-use crate::{MultiTree, Node, NodeId};
+use crate::tree::{MultiTree, Node, NodeId};
 
 #[derive(Clone, Debug)]
-pub struct TreeCursor {
+pub struct RootedTree {
     tree: MultiTree,
     cursor: NodeId,
     root_stack: Vec<NodeId>,
 }
 
-impl TreeCursor {
+impl RootedTree {
     pub fn new() -> Self {
         let mut tree = MultiTree::new();
         let root = tree.new_node();
-        TreeCursor {
+        RootedTree {
             tree,
             cursor: root,
             root_stack: vec![root],

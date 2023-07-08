@@ -3,6 +3,8 @@ use std::fmt;
 use std::num::NonZeroUsize;
 use std::ops::{Index, IndexMut};
 
+use crate::tree::TreeView;
+
 #[derive(Clone, Debug)]
 pub struct MultiTree {
     nodes: Vec<Node>,
@@ -123,6 +125,10 @@ impl MultiTree {
 
     pub(crate) fn get_unchecked_mut(&mut self, id: NodeId) -> &mut Node {
         unsafe { self.nodes.get_unchecked_mut(id.as_usize()) }
+    }
+
+    pub fn view(&self, cursor: NodeId) -> TreeView<'_> {
+        TreeView::new(self, cursor)
     }
 
     pub fn dump_dot<W: fmt::Write>(&self, w: &mut W, id: NodeId) -> fmt::Result {

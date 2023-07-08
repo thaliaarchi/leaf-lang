@@ -1,12 +1,13 @@
 use thiserror::Error;
 
-use crate::{Inst, Program, TreeCursor};
+use crate::tree::RootedTree;
+use crate::{Inst, Program};
 
 #[derive(Clone, Debug)]
 pub struct VM {
     pub(crate) prog: Program,
     pub(crate) pc: usize,
-    pub(crate) tree: TreeCursor,
+    pub(crate) tree: RootedTree,
     pub(crate) loop_stack: Vec<(usize, usize)>,
     pub(crate) success: bool,
 }
@@ -22,7 +23,7 @@ impl VM {
         VM {
             prog,
             pc: 0,
-            tree: TreeCursor::new(),
+            tree: RootedTree::new(),
             loop_stack: vec![],
             success: false,
         }
@@ -111,7 +112,7 @@ impl VM {
         &self.prog
     }
 
-    pub fn tree(&self) -> &TreeCursor {
+    pub fn tree(&self) -> &RootedTree {
         &self.tree
     }
 }
