@@ -39,7 +39,7 @@ fn main() {
             process::exit(1);
         }
     };
-    let mut vm = VM::new(&prog);
+    let mut vm = VM::new(prog);
     if let Err(err) = vm.run() {
         eprintln!("{err}");
         process::exit(1);

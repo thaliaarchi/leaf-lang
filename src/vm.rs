@@ -3,12 +3,12 @@ use thiserror::Error;
 use crate::{Inst, Program, TreeCursor};
 
 #[derive(Clone, Debug)]
-pub struct VM<'a> {
-    prog: &'a Program,
-    pc: usize,
-    tree: TreeCursor,
-    loop_stack: Vec<(usize, usize)>,
-    success: bool,
+pub struct VM {
+    pub(crate) prog: Program,
+    pub(crate) pc: usize,
+    pub(crate) tree: TreeCursor,
+    pub(crate) loop_stack: Vec<(usize, usize)>,
+    pub(crate) success: bool,
 }
 
 #[derive(Error, Clone, Debug, PartialEq, Eq)]
@@ -17,8 +17,8 @@ pub enum VMError {
     Terminated,
 }
 
-impl<'a> VM<'a> {
-    pub fn new(prog: &'a Program) -> Self {
+impl VM {
+    pub fn new(prog: Program) -> Self {
         VM {
             prog,
             pc: 0,
@@ -105,6 +105,10 @@ impl<'a> VM<'a> {
         } else {
             Err(VMError::Terminated)
         }
+    }
+
+    pub fn program(&self) -> &Program {
+        &self.prog
     }
 
     pub fn tree(&self) -> &TreeCursor {

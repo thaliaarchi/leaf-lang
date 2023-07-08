@@ -29,7 +29,7 @@ pub enum Inst {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Program(Vec<Inst>);
 
-#[derive(Error, Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Error, Clone, Debug, PartialEq, Eq)]
 pub enum ParseError {
     #[error("unopened loop (`)` without `(`)")]
     UnopenedLoop,
@@ -38,7 +38,7 @@ pub enum ParseError {
 }
 
 impl Program {
-    pub fn parse(src: &str) -> Result<Program, ParseError> {
+    pub fn parse(src: &str) -> Result<Self, ParseError> {
         let mut prog = Vec::new();
         let mut loops = Vec::new();
         for ch in src.as_bytes() {
@@ -71,11 +71,39 @@ impl Program {
         Ok(Program(prog))
     }
 
+    pub fn from_insts(mut prog: Vec<Inst>) -> Result<Self, ParseError> {
+        let mut loops = Vec::new();
+        for pc in 0..prog.len() {
+            match prog[pc] {
+                Inst::LoopHead(_) => loops.push(pc),
+                Inst::LoopTail => {
+                    let head = loops.pop().ok_or(ParseError::UnopenedLoop)?;
+                    prog[head] = Inst::LoopHead(pc);
+                }
+                _ => {}
+            }
+        }
+        if !loops.is_empty() {
+            return Err(ParseError::UnclosedLoop);
+        }
+        Ok(Program(prog))
+    }
+
+    pub fn insts(&self) -> &[Inst] {
+        &self.0
+    }
+
     pub fn get(&self, pc: usize) -> Option<&Inst> {
         self.0.get(pc)
     }
 
     pub fn len(&self) -> usize {
         self.0.len()
+    }
+}
+
+impl Into<Vec<Inst>> for Program {
+    fn into(self) -> Vec<Inst> {
+        self.0
     }
 }
