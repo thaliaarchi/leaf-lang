@@ -13,7 +13,8 @@
     ? 11
 )}
 
-{(? 4_loops.leaf *>*>*>*>(^)(+>) )}
+{(?
+{(? 4_loops.leaf: *>*>*>*>(^)(+>) )}
 2   +<+                   ^    *> new right
 4   +<+<+<+               ^^^  *> move right
 2   +<+                   ^    *> new right
@@ -29,6 +30,26 @@
 1   +                          *> new left
 4   +<+<+<+               ^^^  *> move right
 7  {+<+<+<+<+<+<+         (^)} *> loop tail
+)}
+
+{(? 5_rebasing.leaf: *>*>{*>*>(^)(+>)} )}
+2   +<+                   ^    *> new right
+4   +<+<+<+               ^^^  *> move right
+2   +<+                   ^    *> new right
+4   +<+<+<+               ^^^  *> move right
+8  {+<+<+<+<+<+<+<+       (^)} *> push root
+2   +<+                   ^    *> new right
+4   +<+<+<+               ^^^  *> move right
+2   +<+                   ^    *> new right
+4   +<+<+<+               ^^^  *> move right
+6  {+<+<+<+<+<+           (^)} *> loop head
+5  {+<+<+<+<+             (^)} *> move up
+7  {+<+<+<+<+<+<+         (^)} *> loop tail
+6  {+<+<+<+<+<+           (^)} *> loop head
+1   +                          *> new left
+4   +<+<+<+               ^^^  *> move right
+7  {+<+<+<+<+<+<+         (^)} *> loop tail
+9  {+<+<+<+<+<+<+<+<+     (^)} *> pop root
 
 {(?
 {(? 6_conditional.leaf: *{(?+*)+} )}
@@ -151,10 +172,17 @@ VM loop:
   <{>)>?
     9 Pop root
 
-    (>)
+    (>)^{+<->   Clear success and set a root there
     (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
-    TODO
-    (^)
+    (^{><<^?}   While the current node is not a root,
+      ^^^         move to the parent node
+    )}
+    ^{<         Set a root at the cursor flag
+    >>^^>(?     If the current node is not the topmost root,
+      ^^}<(>)-    decrement the root count
+      (^)+        and mark success
+    {)}
+    }(^)
 
   <{>)>?
     8 Push root
@@ -169,11 +197,12 @@ VM loop:
 
     (>)
     ^{<(?}      If the success flag is set,
-      }(^){       rebase to the loop head, and
-      <           block it from moving right
+      }(^){       rebase to the loop head
+      <           and block it from moving right
     {)
     >(?}        If the success flag is not set,
-      (^)}}{      unset the loop head root
+      ^+          mark success
+      (^)}}{      and unset the loop head root
     {)}
     ^
 
@@ -188,7 +217,7 @@ VM loop:
     (>)^{+<->   Clear success and set a root there
     (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
     ^{><<^(?}   If the current node is not a root,
-      ^^>-        clear its cursor flag,
+      ^^>-        clear its cursor flag
       (^)+        and mark success
     {)}
     }(^)
@@ -199,7 +228,7 @@ VM loop:
     (>)^{+<->   Clear success and set a root there
     (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
     >{<(?}      If the right child exists,
-      ^*          mark its cursor flag,
+      ^*          mark its cursor flag
       (^)+        and mark success
     {)}
     }(^)
@@ -210,7 +239,7 @@ VM loop:
     (>)^{+<->   Clear success and set a root there
     (<<{{<>^(?>}{>)>>^(?>}{>)}?}^)}  Seek to the cursor
     <{<(?}      If the left child exists,
-      ^*          mark its cursor flag,
+      ^*          mark its cursor flag
       (^)+        and mark success
     {)}
     }(^)
