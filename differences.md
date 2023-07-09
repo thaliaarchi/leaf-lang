@@ -1,8 +1,7 @@
-# Differences from the reference implementation
+# Differences between Leafy and the reference implementation
 
-The original, reference implementation has several bugs, that I fix in my Rust
-implementation and Leaf self-interpreter. This documents how they differ and the
-semantics I used.
+The original, reference implementation has several bugs, that I fix in Leafy and
+leaf.leaf. This documents how they differ and the semantics I used.
 
 - `}` will not pop the topmost root and instead sets success to false. The
   original pops it anyway, which makes `^` and `?` fail.

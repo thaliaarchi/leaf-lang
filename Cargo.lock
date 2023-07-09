@@ -3,7 +3,7 @@
 version = 3
 
 [[package]]
-name = "leaf-lang"
+name = "leafy"
 version = "0.1.0"
 dependencies = [
  "thiserror",

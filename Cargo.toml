@@ -1,17 +1,13 @@
 [package]
-name = "leaf-lang"
+name = "leafy"
 version = "0.1.0"
 authors = ["Thalia Archibald <thalia@archibald.dev>"]
 edition = "2021"
 description = "A fast implementation of the Leaf esoteric programming language"
-repository = "https://github.com/thaliaarchi/leaf-lang"
+repository = "https://github.com/thaliaarchi/leafy"
 license = "MPL-2.0"
 keywords = ["programming-language", "tree"]
 categories = ["compilers"]
 
 [dependencies]
 thiserror = "1.0"
-
-[[bin]]
-name = "leaf"
-path = "src/main.rs"

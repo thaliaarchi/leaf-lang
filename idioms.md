@@ -1,4 +1,4 @@
-# Tree idioms
+# Leaf idioms
 
 - Header comment: `(? … )`
 - Block comment: `{(? … )}`
@@ -6,8 +6,13 @@
 - Delete right child: `*>-`
 - Test left child: `{<(? …)`
 - Test right child: `{>(? …)`
+- Unconditionally break from loop:
+  - `(? … {)`
+  - `(… {?)`
 - Unconditionally exit loop:
+  - `(… {^)`
   - `(… (^)^)`
   - `(… (<)<)`
   - `(… (>)>)`
-  - `(… {^)`
+  - `(… (-)-)` (only in Leafy; see [differences](differences.md))
+  - `(… (})})` (only in Leafy; see [differences](differences.md))

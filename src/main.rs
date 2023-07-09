@@ -5,7 +5,7 @@ use std::path::Path;
 use std::process;
 use std::{env, io};
 
-use leaf_lang::{Program, VM};
+use leafy::{Program, VM};
 
 fn main() {
     let mut args = env::args_os();
