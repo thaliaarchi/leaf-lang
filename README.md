@@ -24,6 +24,7 @@ To learn Leaf, read the original [tutorial](https://crogers.github.io/leaf/tutor
 or try programs interactively in the [playground](https://crogers.github.io/leaf/default.htm).
 Additionally, I've written a list of [idioms](idioms.md), that may be useful
 when writing programs in Leaf. Note, however, that some of the programs here
-will not run correctly in the playground, because Leaf has bugs and issues with
-the semantics, that prevent more complex programs from working and were [fixed](differences.md)
-in Leafy.
+will not run correctly in the original playground, because Leaf has some
+implementation and semantics [bugs](differences.md). As such, I'd recommend
+using [my fork of Leaf](https://github.com/thaliaarchi/leaf) and its
+[playground](https://thaliaarchi.github.io/leaf/playground.html) or Leafy.
